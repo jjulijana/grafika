@@ -20,10 +20,10 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump texture\\bodywork_normal.png
-map_Kd texture\\bodywork_albedo.png
-map_Ns texture\\bodywork_roughhnes.png
-refl texture\\bodywork_metalic.png
+map_Bump texture/bodywork_normal.png
+map_Kd texture/bodywork_albedo.png
+map_Ns texture/bodywork_roughhnes.png
+refl texture/bodywork_metalic.png
 
 newmtl Material.002
 Ns 0.000000
@@ -34,10 +34,10 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump texture\\cockpit_and_cockpit_normal.png
-map_Kd texture\\cockpit_and_cockpit_albedo.png
-map_Ns texture\\cockpit_and_cockpit_roughnes.png
-refl texture\\cockpit_and_cockpit_metalic.png
+map_Bump texture/cockpit_and_cockpit_normal.png
+map_Kd texture/cockpit_and_cockpit_albedo.png
+map_Ns texture/cockpit_and_cockpit_roughnes.png
+refl texture/cockpit_and_cockpit_metalic.png
 
 newmtl light_front
 Ns 225.000000

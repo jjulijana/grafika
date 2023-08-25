@@ -165,8 +165,18 @@ int main() {
 
     // load models
     // -----------
-    Model ourModel("resources/objects/odyssey/Odyssey_OBJ.obj");
+    Model ourModel("resources/objects/casual/uploads_files_3492011_submarin_t_hyper_casual_obj.obj");
+    Model oModel("resources/objects/scuba_diver/diver.obj");
+
+//    Model myModel("resources/objects/seaweed/uploads_files_2301153_seaweedList.obj");
+//    Model myModel("resources/objects/turtle/uploads_files_2184392_Turtle_OBJ.obj");
+//    Model myModel("resources/objects/plesiosaurus/uploads_files_4173845_Plesiosaurus.obj");
+    Model myModel("resources/objects/anglerfish/anglerfish_04.obj");
+
     ourModel.SetShaderTextureNamePrefix("material.");
+    oModel.SetShaderTextureNamePrefix("material.");
+
+    myModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
@@ -227,7 +237,8 @@ int main() {
                                programState->backpackPosition); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        //ourModel.Draw(ourShader);
+        myModel.Draw(ourShader);
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
@@ -254,6 +265,9 @@ int main() {
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window) {
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        programState->camera.Position = glm::vec3(0.0f,0.0f,0.0f) ;
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
