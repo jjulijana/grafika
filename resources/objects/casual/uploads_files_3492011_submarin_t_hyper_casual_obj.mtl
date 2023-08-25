@@ -1,0 +1,50 @@
+# Blender MTL File: 'submarin_t_hyper_casual.blend'
+# Material Count: 4
+
+newmtl Material
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.001
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump texture\\bodywork_normal.png
+map_Kd texture\\bodywork_albedo.png
+map_Ns texture\\bodywork_roughhnes.png
+refl texture\\bodywork_metalic.png
+
+newmtl Material.002
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump texture\\cockpit_and_cockpit_normal.png
+map_Kd texture\\cockpit_and_cockpit_albedo.png
+map_Ns texture\\cockpit_and_cockpit_roughnes.png
+refl texture\\cockpit_and_cockpit_metalic.png
+
+newmtl light_front
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.533265 0.800000 0.731930
+Ks 0.500000 0.500000 0.500000
+Ke 1.032383 2.074778 1.693475
+Ni 1.450000
+d 1.000000
+illum 2

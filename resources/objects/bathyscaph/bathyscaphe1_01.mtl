@@ -1,0 +1,27 @@
+# Blender MTL File: 'bathyscaphe1_0001.blend'
+# Material Count: 2
+
+newmtl map_body_bath_01
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.338952 0.061951
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Textures\\bathyscaphe1_low_map_body_bath_01_Normal_OpenGL.png
+map_Kd Textures\\bathyscaphe1_low_map_body_bath_01_BaseColor.png
+map_Ke Textures\\bathyscaphe1_low_map_body_bath_01_Emissive.png
+map_Ns Textures\\bathyscaphe1_low_map_body_bath_01_Roughness.png
+refl Textures\\bathyscaphe1_low_map_body_bath_01_Metallic.png
+
+newmtl map_glass_bath_01
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
