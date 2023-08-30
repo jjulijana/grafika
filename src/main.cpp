@@ -166,6 +166,7 @@ int main() {
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
 
+    Shader jellyShader("resources/shaders/jellyfish.vs", "resources/shaders/jellyfish.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
 
     float skyboxVertices[] = {
@@ -256,8 +257,10 @@ int main() {
 
 //    Model myModel("resources/objects/seaweed/uploads_files_2301153_seaweedList.obj");
 //    Model myModel("resources/objects/turtle/uploads_files_2184392_Turtle_OBJ.obj");
-//    Model myModel("resources/objects/plesiosaurus/uploads_files_4173845_Plesiosaurus.obj");
-    Model myModel("resources/objects/anglerfish/anglerfish_04.obj");
+
+    Model myModel("resources/objects/plesiosaurus/uploads_files_4173845_Plesiosaurus.obj");
+
+    Model jellyModel("resources/objects/fish1/uploads_files_3737216_Jellyfish+Abstract.obj");
 
     ourModel.SetShaderTextureNamePrefix("material.");
     oModel.SetShaderTextureNamePrefix("material.");
@@ -266,7 +269,7 @@ int main() {
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
+    pointLight.ambient = glm::vec3(0.8, 0.8, 0.8);
     pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
@@ -324,7 +327,57 @@ int main() {
         model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         //ourModel.Draw(ourShader);
-        myModel.Draw(ourShader);
+        //myModel.Draw(ourShader);
+
+
+        jellyShader.use();
+
+        //glm::vec3 jellyPosition = glm::vec3(10.0f + sin(-currentFrame/2)*41.0f, 26.5f, 10.0f + cos(-currentFrame/2)*41.0f);
+        glm::vec3 jellyPosition = glm::vec3(-10.0f, 0.0f, -10.0f); // Change the values as needed
+        jellyPosition.x += sin(-currentFrame / 2) * 41.0f;
+        jellyPosition.z += cos(-currentFrame / 2) * 41.0f;
+        jellyPosition.y += sin(-currentFrame / 4) * 10.0f; // Add vertical motion
+
+
+        jellyShader.setVec3("pointLight.position", glm::vec3(jellyPosition.x, 32.0f, jellyPosition.z));
+//        jellyShader.setVec3("pointLight.position", glm::vec3(10.0f * cos(currentFrame), 7.0f, 10.0f * sin(currentFrame)));
+        jellyShader.setVec3("pointLight.ambient", glm::vec3(0.44f, 0.44f, 0.44f));
+        jellyShader.setVec3("pointLight.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
+        jellyShader.setVec3("pointLight.specular", glm::vec3(1.6f, 1.6f, 1.6f));
+        jellyShader.setFloat("pointLight.constant", 0.4f);
+        jellyShader.setFloat("pointLight.linear", 0.09f);
+        jellyShader.setFloat("pointLight.quadratic", 0.032f);
+        jellyShader.setVec3("viewPosition", programState->camera.Position);
+        jellyShader.setFloat("material.shininess", 32.0f);
+        // view/projection transformations
+//        projection = glm::perspective(glm::radians(programState->camera.Zoom),
+//                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 400.0f);
+        view = programState->camera.GetViewMatrix();
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, jellyPosition);
+        //model = glm::rotate(model, currentFrame / 8, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        float selfRotationAngle = currentFrame * 5.0f; // Adjust the factor to control rotation speed
+        model = glm::rotate(model, selfRotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+
+// Add rotation around circular path
+        float circularRotationAngle = currentFrame / 8; // Adjust the factor to control rotation speed
+        model = glm::rotate(model, circularRotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+
+
+        model = glm::scale(model, glm::vec3(1.0f));
+
+        jellyShader.setMat4("projection", projection);
+        jellyShader.setMat4("view", view);
+        jellyShader.setMat4("model", model);
+
+        jellyShader.setVec3("dirLight.ambient", glm::vec3(0.57f));
+        jellyShader.setVec3("dirLight.diffuse", glm::vec3(0.75f));
+        jellyShader.setVec3("dirLight.specular", glm::vec3(0.85f));
+
+        jellyModel.Draw(jellyShader);
+
 
         // draw skybox
         glDepthFunc(GL_LEQUAL);  // change depth function
@@ -386,10 +439,10 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(RIGHT, deltaTime);
 
-//    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-//        programState->camera.ProcessKeyboard(DOWN, deltaTime);
-//    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-//        programState->camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        programState->camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        programState->camera.ProcessKeyboard(DOWN, deltaTime);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
