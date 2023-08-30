@@ -130,7 +130,7 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
     // tell GLFW to capture our mouse
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -165,7 +165,8 @@ int main() {
     // build and compile shaders
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
-    Shader skyboxShader("6.1.skybox.vs", "6.1.skybox.fs");
+
+    Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
 
     float skyboxVertices[] = {
             // positions
@@ -222,14 +223,23 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
+//    vector<std::string> faces         // order?
+//            {
+//                    FileSystem::getPath("resources/textures/skyboxes/teal1/0001.jpg"),
+//                    FileSystem::getPath("resources/textures/skyboxes/teal1/0002.jpg"),
+//                    FileSystem::getPath("resources/textures/skyboxes/teal1/0003.jpg"),
+//                    FileSystem::getPath("resources/textures/skyboxes/teal1/0004.jpg"),
+//                    FileSystem::getPath("resources/textures/skyboxes/teal1/0005.jpg"),
+//                    FileSystem::getPath("resources/textures/skyboxes/teal1/0006.jpg")
+//            };
     vector<std::string> faces
             {
-                    FileSystem::getPath("resources/textures/skyboxes/teal1/0001.jpg"),
-                    FileSystem::getPath("resources/textures/skyboxes/teal1/0002.jpg"),
-                    FileSystem::getPath("resources/textures/skyboxes/teal1/0003.jpg"),
-                    FileSystem::getPath("resources/textures/skyboxes/teal1/0004.jpg"),
-                    FileSystem::getPath("resources/textures/skyboxes/teal1/0005.jpg"),
-                    FileSystem::getPath("resources/textures/skyboxes/teal1/0006.jpg")
+                    FileSystem::getPath("resources/textures/uw_sky/underwater/uw_rt.jpg"),  // ok
+                    FileSystem::getPath("resources/textures/uw_sky/underwater/uw_lf.jpg"),  // ok
+                    FileSystem::getPath("resources/textures/uw_sky/underwater/uw_up.jpg"),  // ok
+                    FileSystem::getPath("resources/textures/uw_sky/underwater/uw_dn.jpg"),  // ok
+                    FileSystem::getPath("resources/textures/uw_sky/underwater/uw_ft.jpg"),  // ok
+                    FileSystem::getPath("resources/textures/uw_sky/underwater/uw_bk.jpg")   // ok
             };
     unsigned int cubemapTexture = loadCubemap(faces);
 
