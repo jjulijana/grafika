@@ -162,11 +162,15 @@ int main() {
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
     // build and compile shaders
     // -------------------------
 
     Shader ourShader("resources/shaders/model_lighting.vs", "resources/shaders/model_lighting.fs");
 
+    Shader blendingShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
     Shader jellyShader("resources/shaders/jellyfish.vs", "resources/shaders/jellyfish.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
 
@@ -215,6 +219,30 @@ int main() {
             1.0f, -1.0f,  1.0f
     };
 
+    float transparentVertices[] = {
+            // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+            0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+            0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+
+            0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+            1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+    };
+
+    // transparent VAO
+    unsigned int transparentVAO, transparentVBO;
+    glGenVertexArrays(1, &transparentVAO);
+    glGenBuffers(1, &transparentVBO);
+    glBindVertexArray(transparentVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glBindVertexArray(0);
+
     // skybox VAO
     unsigned int skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
@@ -245,6 +273,21 @@ int main() {
             };
     unsigned int cubemapTexture = loadCubemap(faces);
 
+    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/algae.png").c_str());
+
+    // transparent algae locations
+    // --------------------------------
+    vector<glm::vec3> vegetation
+            {
+                    glm::vec3(-15.0f, -1.0f, -4.0f),
+                    glm::vec3( 15.0f, 2.0f, 5.0f),
+                    glm::vec3( 0.0f, 1.0f, 7.0f),
+                    glm::vec3(-3.0f, 2.0f, -20.0f),
+                    glm::vec3 (0.0f,-1.0f,-10.0f)
+            };
+    blendingShader.use();
+    blendingShader.setInt("texture1",0);
+
     // shader configuration
     // --------------------
     skyboxShader.use();
@@ -256,24 +299,16 @@ int main() {
     Model subModel("resources/objects/submarine/submarine_hyper.obj");
     Model turtleModel("resources/objects/turtle/turtle.obj");
     Model monsterModel("resources/objects/plesiosaurus/plesiosaurus.obj");
+    Model plasticModel("resources/objects/plastic/plastic_bottles.obj");
 
     Model jellyModel("resources/objects/jellyfish/jellyfish.obj");
 
     subModel.SetShaderTextureNamePrefix("material.");
     turtleModel.SetShaderTextureNamePrefix("material.");
     monsterModel.SetShaderTextureNamePrefix("material.");
+    plasticModel.SetShaderTextureNamePrefix("material.");
+
     jellyModel.SetShaderTextureNamePrefix("material.");
-
-    PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(0.7, 0.7, 0.7);
-    pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
-    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
-
-    pointLight.constant = 1.0f;
-    pointLight.linear = 0.09f;
-    pointLight.quadratic = 0.032f;
-
 
 
     // draw in wireframe
@@ -300,16 +335,22 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0);
-        ourShader.setVec3("pointLight.position", pointLight.position);
-        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
-        ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        ourShader.setVec3("pointLight.specular", pointLight.specular);
-        ourShader.setFloat("pointLight.constant", pointLight.constant);
-        ourShader.setFloat("pointLight.linear", pointLight.linear);
-        ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+//        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0);
+        ourShader.setVec3("pointLight.position", glm::vec3(10.0f + sin(-glfwGetTime()/2)*41.0f, 26.5f, 10.0f + cos(-glfwGetTime()/2)*41.0f));
+        ourShader.setVec3("pointLight.ambient", glm::vec3(0.7, 0.7, 0.7));
+        ourShader.setVec3("pointLight.diffuse", glm::vec3(0.6, 0.6, 0.6));
+        ourShader.setVec3("pointLight.specular", glm::vec3(1.0, 1.0, 1.0));
+        ourShader.setFloat("pointLight.constant", 1.0f);
+        ourShader.setFloat("pointLight.linear", 0.09f);
+        ourShader.setFloat("pointLight.quadratic", 0.001f);
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
+
+        ourShader.setVec3("dirLight.direction", glm::vec3(0.0f, 20.0f, 0.0f));
+        ourShader.setVec3("dirLight.ambient", glm::vec3(0.05f));
+        ourShader.setVec3("dirLight.diffuse", glm::vec3(0.05f));
+        ourShader.setVec3("dirLight.specular", glm::vec3(0.05f));
+
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
@@ -325,9 +366,7 @@ int main() {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -15.0f, -15.0f));
         model = glm::scale(model, glm::vec3(3.0f));
-
-        float yOffset = sin(currentFrame) * 0.5f;
-        model = glm::translate(model, glm::vec3(0.0f, yOffset, 0.0f));
+        model = glm::translate(model, glm::vec3(0.0f, sin(currentFrame) * 0.5f, 0.0f));
 
         ourShader.setMat4("model", model);
         subModel.Draw(ourShader);
@@ -349,10 +388,7 @@ int main() {
         model = glm::scale(model, glm::vec3(0.8f));
 
         float angle = glm::radians(currentFrame * 5.0f);
-        float radius = 180.0f;
-        float xOffset = radius * cos(angle);
-        float zOffset = radius * sin(angle);
-        glm::vec3 monsterPosition = glm::vec3(xOffset, -15.0f, -15.0f + zOffset);
+        glm::vec3 monsterPosition = glm::vec3(180.0f * cos(angle), -15.0f, -15.0f + 180.0f * sin(angle));
 
         model = glm::translate(model, glm::vec3(0.0f, -15.0f, -50.0f));
         model = glm::translate(model, monsterPosition);
@@ -361,40 +397,19 @@ int main() {
         ourShader.setMat4("model", model);
         monsterModel.Draw(ourShader);
 
+        // JELLYFISH
 
         jellyShader.use();
 
-        //glm::vec3 jellyPosition = glm::vec3(10.0f + sin(-currentFrame/2)*41.0f, 26.5f, 10.0f + cos(-currentFrame/2)*41.0f);
-        glm::vec3 jellyPosition = glm::vec3(-10.0f, 0.0f, -10.0f);
-        jellyPosition.x += sin(-currentFrame / 2) * 41.0f;
-        jellyPosition.z += cos(-currentFrame / 2) * 41.0f;
-        jellyPosition.y += sin(-currentFrame / 4) * 10.0f;
-
-
-        jellyShader.setVec3("pointLight.position", glm::vec3(jellyPosition.x, 32.0f, jellyPosition.z));
-//        jellyShader.setVec3("pointLight.position", glm::vec3(10.0f * cos(currentFrame), 7.0f, 10.0f * sin(currentFrame)));
-        jellyShader.setVec3("pointLight.ambient", glm::vec3(0.44f, 0.44f, 0.44f));
-        jellyShader.setVec3("pointLight.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
-        jellyShader.setVec3("pointLight.specular", glm::vec3(1.6f, 1.6f, 1.6f));
-        jellyShader.setFloat("pointLight.constant", 0.4f);
-        jellyShader.setFloat("pointLight.linear", 0.09f);
-        jellyShader.setFloat("pointLight.quadratic", 0.032f);
-        jellyShader.setVec3("viewPosition", programState->camera.Position);
-        jellyShader.setFloat("material.shininess", 32.0f);
-        // view/projection transformations
-        //        projection = glm::perspective(glm::radians(programState->camera.Zoom),
-        //                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 400.0f);
-        view = programState->camera.GetViewMatrix();
+        glm::vec3 jellyPosition = glm::vec3(10.0f + sin(-currentFrame/2)*41.0f, 26.5f, 10.0f + cos(-currentFrame/2)*41.0f);
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, jellyPosition);
-        //model = glm::rotate(model, currentFrame / 8, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        float selfRotationAngle = currentFrame * 5.0f;
+        float selfRotationAngle = currentFrame * 2.0f;
         model = glm::rotate(model, selfRotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
         float circularRotationAngle = currentFrame / 8;
         model = glm::rotate(model, circularRotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-
 
         model = glm::scale(model, glm::vec3(1.0f));
 
@@ -402,11 +417,39 @@ int main() {
         jellyShader.setMat4("view", view);
         jellyShader.setMat4("model", model);
 
-        jellyShader.setVec3("dirLight.ambient", glm::vec3(0.57f));
-        jellyShader.setVec3("dirLight.diffuse", glm::vec3(0.75f));
-        jellyShader.setVec3("dirLight.specular", glm::vec3(0.85f));
-
         jellyModel.Draw(jellyShader);
+
+
+        // TEXTURES
+
+        // algae
+        blendingShader.use();
+        blendingShader.setMat4("projection", projection);
+        blendingShader.setMat4("view", view);
+        glBindVertexArray(transparentVAO);
+        glBindTexture(GL_TEXTURE_2D, transparentTexture);
+        for (unsigned int i = 0; i < vegetation.size(); i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::scale(model,glm::vec3(2.0f));
+            model = glm::translate(model, vegetation[i]);
+            blendingShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
+
+        // PLASTIC
+
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(4.0f));
+        model = glm::translate(model, glm::vec3(-3.0f, sin(currentFrame) * 0.4f - 4.0f, 1.0f));
+
+        ourShader.use();
+        ourShader.setMat4("model", model);
+        plasticModel.Draw(ourShader);
+
+//        blendingShader.use();                               // prettier?
+//        blendingShader.setMat4("model", model);
+//        plasticModel.Draw(blendingShader);
 
 
         // draw skybox
@@ -455,7 +498,7 @@ int main() {
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-        programState->camera.Position = glm::vec3(0.0f,0.0f,0.0f) ;
+        programState->camera.Position = glm::vec3(-37.5f,0.0f,37.5f) ;
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -596,6 +639,45 @@ unsigned int loadCubemap(vector<std::string> faces)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
+}
+
+// utility function for loading a 2D texture from file
+// ---------------------------------------------------
+unsigned int loadTexture(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
 
     return textureID;
 }

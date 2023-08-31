@@ -1,0 +1,14 @@
+# Blender 3.4.1 MTL File: 'Plastic_Bottles.blend'
+# www.blender.org
+
+newmtl Plastic_Bottles
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Textures/PlasticBottles_Plastic_Bottles_AlbedoTransparency.png
+map_Ns Textures/PlasticBottles_Plastic_Bottles_Roughness.png
+map_refl Textures/PlasticBottles_Plastic_Bottles_MetallicSmoothness.png
+map_Bump -bm 1.000000 Textures/PlasticBottles_Plastic_Bottles_Normal.png
