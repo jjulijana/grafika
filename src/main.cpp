@@ -118,7 +118,7 @@ int main() {
 
     // glfw window creation
     // --------------------
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Ocean", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -164,7 +164,8 @@ int main() {
 
     // build and compile shaders
     // -------------------------
-    Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
+
+    Shader ourShader("resources/shaders/model_lighting.vs", "resources/shaders/model_lighting.fs");
 
     Shader jellyShader("resources/shaders/jellyfish.vs", "resources/shaders/jellyfish.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
@@ -252,24 +253,20 @@ int main() {
 
     // load models
     // -----------
-    Model ourModel("resources/objects/casual/uploads_files_3492011_submarin_t_hyper_casual_obj.obj");
-    Model oModel("resources/objects/scuba_diver/diver.obj");
+    Model subModel("resources/objects/submarine/submarine_hyper.obj");
+    Model turtleModel("resources/objects/turtle/turtle.obj");
+    Model monsterModel("resources/objects/plesiosaurus/plesiosaurus.obj");
 
-//    Model myModel("resources/objects/seaweed/uploads_files_2301153_seaweedList.obj");
-//    Model myModel("resources/objects/turtle/uploads_files_2184392_Turtle_OBJ.obj");
+    Model jellyModel("resources/objects/jellyfish/jellyfish.obj");
 
-    Model myModel("resources/objects/plesiosaurus/uploads_files_4173845_Plesiosaurus.obj");
-
-    Model jellyModel("resources/objects/fish1/uploads_files_3737216_Jellyfish+Abstract.obj");
-
-    ourModel.SetShaderTextureNamePrefix("material.");
-    oModel.SetShaderTextureNamePrefix("material.");
-
-    myModel.SetShaderTextureNamePrefix("material.");
+    subModel.SetShaderTextureNamePrefix("material.");
+    turtleModel.SetShaderTextureNamePrefix("material.");
+    monsterModel.SetShaderTextureNamePrefix("material.");
+    jellyModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(0.8, 0.8, 0.8);
+    pointLight.ambient = glm::vec3(0.7, 0.7, 0.7);
     pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
@@ -303,7 +300,7 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
+        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0);
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -313,30 +310,65 @@ int main() {
         ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
+
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
-                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
+                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 400.0f);
         glm::mat4 view = programState->camera.GetViewMatrix();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
         // render the loaded model
+
+        // SUBMARINE
+
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model,
-                               programState->backpackPosition); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
+        model = glm::translate(model, glm::vec3(0.0f, -15.0f, -15.0f));
+        model = glm::scale(model, glm::vec3(3.0f));
+
+        float yOffset = sin(currentFrame) * 0.5f;
+        model = glm::translate(model, glm::vec3(0.0f, yOffset, 0.0f));
+
         ourShader.setMat4("model", model);
-        //ourModel.Draw(ourShader);
-        //myModel.Draw(ourShader);
+        subModel.Draw(ourShader);
+
+
+        // TURTLE
+
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(0.05f));
+        model = glm::translate(model, glm::vec3(3.0f, sin(currentFrame) * 7.0f - 290.0f, -30.0f));
+
+        ourShader.use();
+        ourShader.setMat4("model", model);
+        turtleModel.Draw(ourShader);
+
+        // MONSTER
+
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(0.8f));
+
+        float angle = glm::radians(currentFrame * 5.0f);
+        float radius = 180.0f;
+        float xOffset = radius * cos(angle);
+        float zOffset = radius * sin(angle);
+        glm::vec3 monsterPosition = glm::vec3(xOffset, -15.0f, -15.0f + zOffset);
+
+        model = glm::translate(model, glm::vec3(0.0f, -15.0f, -50.0f));
+        model = glm::translate(model, monsterPosition);
+
+        ourShader.use();
+        ourShader.setMat4("model", model);
+        monsterModel.Draw(ourShader);
 
 
         jellyShader.use();
 
         //glm::vec3 jellyPosition = glm::vec3(10.0f + sin(-currentFrame/2)*41.0f, 26.5f, 10.0f + cos(-currentFrame/2)*41.0f);
-        glm::vec3 jellyPosition = glm::vec3(-10.0f, 0.0f, -10.0f); // Change the values as needed
+        glm::vec3 jellyPosition = glm::vec3(-10.0f, 0.0f, -10.0f);
         jellyPosition.x += sin(-currentFrame / 2) * 41.0f;
         jellyPosition.z += cos(-currentFrame / 2) * 41.0f;
-        jellyPosition.y += sin(-currentFrame / 4) * 10.0f; // Add vertical motion
+        jellyPosition.y += sin(-currentFrame / 4) * 10.0f;
 
 
         jellyShader.setVec3("pointLight.position", glm::vec3(jellyPosition.x, 32.0f, jellyPosition.z));
@@ -350,19 +382,17 @@ int main() {
         jellyShader.setVec3("viewPosition", programState->camera.Position);
         jellyShader.setFloat("material.shininess", 32.0f);
         // view/projection transformations
-//        projection = glm::perspective(glm::radians(programState->camera.Zoom),
-//                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 400.0f);
+        //        projection = glm::perspective(glm::radians(programState->camera.Zoom),
+        //                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 400.0f);
         view = programState->camera.GetViewMatrix();
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, jellyPosition);
         //model = glm::rotate(model, currentFrame / 8, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        float selfRotationAngle = currentFrame * 5.0f; // Adjust the factor to control rotation speed
+        float selfRotationAngle = currentFrame * 5.0f;
         model = glm::rotate(model, selfRotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-
-// Add rotation around circular path
-        float circularRotationAngle = currentFrame / 8; // Adjust the factor to control rotation speed
+        float circularRotationAngle = currentFrame / 8;
         model = glm::rotate(model, circularRotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
 
 
