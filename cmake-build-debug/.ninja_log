@@ -5,6 +5,7 @@
 12076	22669	1692965259068461422	libs/imgui/CMakeFiles/imgui.dir/src/imgui_demo.cpp.o	e8edadf274b3cbc
 24558	39463	1692965275864382452	libs/imgui/CMakeFiles/imgui.dir/src/imgui_widgets.cpp.o	c6b01445bf756f4c
 6268	6437	1693471202259941544	libs/imgui/libimgui.a	9a46ea42943b125
+19	257	1693763851111287456	build.ninja	778e62a9699ff85f
 18088	18132	1692965254536484220	libSTB_IMAGE.a	502a6b00de23b6e8
 4	390	1692965236800579661	libs/glad/CMakeFiles/glad.dir/src/glad.c.o	a8685f276a24d6f0
 22671	29442	1692965265848428512	libs/imgui/CMakeFiles/imgui.dir/src/imgui_tables.cpp.o	3ef53d6da6d775b3
@@ -13,4 +14,4 @@
 3	6268	1693471202095940458	libs/imgui/CMakeFiles/imgui.dir/src/imgui_draw.cpp.o	ec3f9014e8807139
 1	18088	1692965254480484505	CMakeFiles/STB_IMAGE.dir/libs/stb_image.cpp.o	be79b73a92373c7b
 15	6761	1693762577851645325	CMakeFiles/project_base.dir/src/main.cpp.o	f190c4aba9a94a4f
-19	257	1693763597285877404	build.ninja	778e62a9699ff85f
+0	125	1693763851111287456	build.ninja	778e62a9699ff85f
